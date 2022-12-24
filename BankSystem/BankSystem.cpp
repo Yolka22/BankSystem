@@ -31,7 +31,13 @@ public:
 	};
 
 	Card() {
-
+		this->balance = 0;
+		this->type = "type";
+		this->number = "number";
+		this->CVV = "CVV";
+		this->date = "date";
+		this->owner = "owner";
+		this->credit_limit = 0;
 
 	}
 
@@ -134,19 +140,20 @@ public:
 
 		ofstream out;
 
-		out.open("bank_system.txt");
+		out.open("bank_system.txt", ios::out | ios::app | ios::binary);
 
 		if (out.is_open()) {
-
+			out << pocket.size() << " ";
 			for (size_t i = 0; i < pocket.size(); i++)
 			{
-				out << pocket[i].balance << " ";
+				out << pocket[i].balance<<" ";
 				out << pocket[i].type << " ";
 				out << pocket[i].number << " ";
 				out << pocket[i].CVV << " ";
 				out << pocket[i].date << " ";
 				out << pocket[i].owner << " ";
 				out << pocket[i].credit_limit << " ";
+				
 			}
 
 		}
@@ -157,19 +164,30 @@ public:
 
 	//считывает данные карт с файла
 
-	void Read(vector<Card> pocket) {
+	void Read(vector<Card> &pocket) {
 
-		ifstream in("bank_system.txt");
+		ifstream in("bank_system.txt",ios::in | ios::binary);
 
 
 
 		if (in.is_open()) {
-
-
-
-			while (in >> balance >> type >> number >> CVV >> date >> owner >> credit_limit >> balance) {
-
-				pocket.push_back(Card(balance, type, number, CVV, date, owner, credit_limit));
+			int tmp_size;
+			in >> tmp_size;
+			/*pocket.resize(tmp_size);*/
+             Card* tmp = new Card();
+			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
+				/*for (size_t i = 0; i < pocket.size(); i++)
+				{
+                 tmp->balance = balance;
+				 tmp->type = type;
+				 tmp->number = number;
+				 tmp->CVV = CVV;
+				tmp->date = date; 
+				tmp->owner = owner;
+				tmp->credit_limit = credit_limit;*/
+				pocket.push_back(*tmp);
+				/*}*/
+				
 
 			}
 
