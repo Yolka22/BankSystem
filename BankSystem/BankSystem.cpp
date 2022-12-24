@@ -138,6 +138,28 @@ public:
 		return credit_limit;
 	}
 
+	void set_data_pay() {
+
+		int _month;
+		int _week;
+		int _day;
+		cout << "when the transaction was made?" << endl;
+
+		cout << "month" << endl;
+		cin >> _month;
+
+		cout << "week" << endl;
+		cin >> _week;
+
+		cout << "day" << endl;
+		cin >> _day;
+
+
+		data_pay.month = _month;
+		data_pay.week = _week;
+		data_pay.day = _day;
+
+	}
 
 	//вывод объекта Card на экран
 
@@ -299,10 +321,17 @@ public:
 				
 				if (summ <= pocket[i].get_balance()) {
                    pocket[i].set_balance(pocket[i].get_balance()-summ);
+					
+				   pocket[i].set_data_pay();
+				
 				}
 				
 			}
 		}
+
+
+
+
 
 	}
 	void Categori_Menu(vector<Card>& pocket) {
@@ -331,6 +360,8 @@ public:
 			cost_categiries.countFood++;
 			Card_selection(pocket,sum);
 			
+			
+
 			break;
 
 		case 2:
