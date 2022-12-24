@@ -1,4 +1,6 @@
-﻿#include <iostream>
+
+
+#include <iostream>
 #include <string>
 #include <cstdlib>
 #include <fstream>
@@ -113,8 +115,6 @@ public:
 
 
 	void set_type(string type) {
-		/*cout << "type type" << endl;*/
-		/*cin >> type;*/
 		this->type = type;
 	}
 
@@ -197,9 +197,8 @@ public:
 			
              Card* tmp = new Card();
 			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
-				
+      
 				pocket.push_back(*tmp);
-				
 				
 
 			}
