@@ -4,12 +4,33 @@
 #include <fstream>
 #include <vector>
 using namespace std;
-
+struct Data {
+	int month;
+	int day;
+	int week;
+};
+struct Сost_categories {
+	string food = "Food";
+	string entertaiment = "Entertaiment";
+	string communal_payments = "Communal_payments";
+	string subscriptions = "Subscriptions";
+	string other = "Other";
+	float spend_countFood = 0;              //общая сумма покупок в данной категории
+	float spend_countEntertaiment = 0;  
+	float spend_countCom_payments = 0;
+	float spend_countSubscript = 0;
+	float spend_countOther = 0;
+	int countFood = 0;                     //колличество покупок в данной категории
+	int countEntertaiment = 0;
+	int countCom_payments = 0;
+	int countSubscript = 0;
+	int countOther = 0;
+};
 
 class Card
 {
 public:
-
+	
 	Card(int balance,
 		string type,
 		string number,
@@ -140,7 +161,7 @@ public:
 
 		ofstream out;
 
-		out.open("bank_system.txt", ios::out | ios::app | ios::binary);
+		out.open("bank_system.txt", ios::out  | ios::binary);
 
 		if (out.is_open()) {
 			out << pocket.size() << " ";
@@ -173,20 +194,12 @@ public:
 		if (in.is_open()) {
 			int tmp_size;
 			in >> tmp_size;
-			/*pocket.resize(tmp_size);*/
+			
              Card* tmp = new Card();
 			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
-				/*for (size_t i = 0; i < pocket.size(); i++)
-				{
-                 tmp->balance = balance;
-				 tmp->type = type;
-				 tmp->number = number;
-				 tmp->CVV = CVV;
-				tmp->date = date; 
-				tmp->owner = owner;
-				tmp->credit_limit = credit_limit;*/
+				
 				pocket.push_back(*tmp);
-				/*}*/
+				
 				
 
 			}
@@ -196,11 +209,7 @@ public:
 		in.close();
 
 	}
-
-
-	void credit_spend() {
-
-	}
+	
 
 	void debit_spend() {
 
@@ -274,9 +283,104 @@ public:
 
 		return *card;
 	}
+	void Card_selection(vector<Card>& pocket,int summ) {
+		string _numbCard;
+		for (size_t i = 0; i < pocket.size(); i++)
+		{
+			pocket[i].Show();
+		}
 
+		cout << "Enter nunber card: \n";
+		cin >> _numbCard;
+		for (size_t i = 0; i < pocket.size(); i++)
+		{
+			if (_numbCard == pocket[i].get_number()) {
+				
+				cout << "enter the amount to replenish the account\n";
+				
+				if (summ <= pocket[i].get_balance()) {
+                   pocket[i].set_balance(pocket[i].get_balance()-summ);
+				}
+				
+			}
+		}
+
+	}
+	void Categori_Menu(vector<Card>& pocket) {
+
+		int categori;
+		int sum=0;
+		cout << "what categori u wanna use?" << endl;
+		cout << "1 " << cost_categiries.food << endl;
+		cout << "2 " << cost_categiries.entertaiment << endl;
+		cout << "3 " << cost_categiries.communal_payments << endl;
+		cout << "4 " << cost_categiries.subscriptions << endl;
+		cout << "5 " << cost_categiries.other << endl;
+
+
+	Start:
+		cin >> categori;
+
+		switch (categori)
+		{
+
+		case 1:
+			cout << "enter the purchase amount in this category: " << endl;
+			
+			cin >> sum;
+			cost_categiries.spend_countFood+=sum;
+			cost_categiries.countFood++;
+			Card_selection(pocket,sum);
+			
+			break;
+
+		case 2:
+			cout << "enter the purchase amount in this category: " << endl;
+			
+			cin >> sum;
+			cost_categiries.spend_countEntertaiment += sum;
+			cost_categiries.countEntertaiment++;
+			Card_selection(pocket, sum);
+			break;
+
+		case 3:
+			cout << "enter the purchase amount in this category: " << endl;
+			
+			cin >> sum;
+			cost_categiries.spend_countCom_payments += sum;
+			cost_categiries.countCom_payments++;
+			Card_selection(pocket, sum);
+			break;
+
+		case 4:
+			cout << "enter the purchase amount in this category: " << endl;
+			
+			cin >> sum;
+			cost_categiries.spend_countSubscript += sum;
+			cost_categiries.countSubscript++;
+			Card_selection(pocket, sum);
+			break;
+
+		case 5:
+			cout << "enter the purchase amount in this category: " << endl;
+			
+			cin >> sum;
+			cost_categiries.spend_countOther += sum;
+			cost_categiries.countOther++;
+			Card_selection(pocket, sum);
+			break;
+
+		default:
+
+			cout << "Wrong categori";
+			goto Start;
+
+			break;
+		}
+	}
 private:
-
+	Сost_categories cost_categiries;
+	Data data_pay;
 	string type;
 	string number;
 	string CVV;
@@ -293,6 +397,7 @@ private:
 
 
 
+
 int main()
 {
 	vector<Card> pocket;
@@ -301,7 +406,7 @@ int main()
 	//временный объект Card для вызова методов
 	Card tmp_card;
 
-
+	string number_card;
 	int choose;
 	bool No_exit = true;
 
@@ -319,7 +424,9 @@ Start_Menu:
 		cout << "2 top up card\n";
 		cout << "3 show pocket\n";
 		cout << "4 clear console\n";
-		cout << "5 save & exit\n";
+		cout << "5 card replenishment\n";
+		cout << "6 card replenishment\n";
+		cout << "7 save & exit\n";
 
 
 
@@ -368,13 +475,38 @@ Start_Menu:
 			system("cls");
 
 			break;
-
-			//сохранение в файл
+			//пополнение карт
 		case 5:
+			cout << "choose a card to replenish your account" << endl;
+			for (size_t i = 0; i < pocket.size(); i++)
+			{
+				pocket[i].Show();
+			}
+			
+			cout << "Enter nunber card: \n";
+			cin >> number_card;
+			for (size_t i = 0; i < pocket.size(); i++)
+			{
+				if (number_card == pocket[i].get_number()) {
+					int sum=0;
+					cout << "enter the amount to replenish the account\n";
+					cin >> sum;
+					pocket[i].set_balance(sum);
+				}
+			}
+			
+			break;
+
+			//сохранение в файл выход из меню
+		case 6:
+			tmp_card.Categori_Menu(pocket);
+			
+						
+			break;
+			//сохранение в файл выход из меню
+		case 7:
 			tmp_card.Save(pocket);
 			No_exit = false;
-
-			//выход из меню
 
 			break;
 		default:
@@ -392,4 +524,6 @@ Start_Menu:
 
 
 }
+
+
 
