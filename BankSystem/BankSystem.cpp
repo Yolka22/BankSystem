@@ -92,8 +92,6 @@ public:
 
 
 	void set_type(string type) {
-		/*cout << "type type" << endl;*/
-		/*cin >> type;*/
 		this->type = type;
 	}
 
@@ -176,17 +174,9 @@ public:
 			/*pocket.resize(tmp_size);*/
              Card* tmp = new Card();
 			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
-				/*for (size_t i = 0; i < pocket.size(); i++)
-				{
-                 tmp->balance = balance;
-				 tmp->type = type;
-				 tmp->number = number;
-				 tmp->CVV = CVV;
-				tmp->date = date; 
-				tmp->owner = owner;
-				tmp->credit_limit = credit_limit;*/
+
 				pocket.push_back(*tmp);
-				/*}*/
+
 				
 
 			}
