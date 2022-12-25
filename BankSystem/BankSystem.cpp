@@ -1,16 +1,18 @@
 
-
+ 
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+
 using namespace std;
 struct Data {
 	int month;
 	int day;
 	int week;
 };
+
 struct Сost_categories {
 	string food = "Food";
 	string entertaiment = "Entertaiment";
@@ -18,7 +20,7 @@ struct Сost_categories {
 	string subscriptions = "Subscriptions";
 	string other = "Other";
 	float spend_countFood = 0;              //общая сумма покупок в данной категории
-	float spend_countEntertaiment = 0;  
+	float spend_countEntertaiment = 0;
 	float spend_countCom_payments = 0;
 	float spend_countSubscript = 0;
 	float spend_countOther = 0;
@@ -31,6 +33,19 @@ struct Сost_categories {
 
 class Card
 {
+	private:
+	Сost_categories cost_categiries;
+	Data data_pay;
+	string type;
+	string number;
+	string CVV;
+	string date;
+	string owner;
+	int credit_limit;
+	int balance;
+
+
+
 public:
 	
 	Card(int balance,
@@ -196,12 +211,28 @@ public:
 				out << pocket[i].date << " ";
 				out << pocket[i].owner << " ";
 				out << pocket[i].credit_limit << " ";
-				
+				out.close();
+
+
+				out.open("top_payments.txt", ios::out | ios::binary);
+
+				if (out.is_open())
+				{
+					out << pocket[i].cost_categiries.spend_countCom_payments;
+					out << pocket[i].cost_categiries.spend_countEntertaiment;
+					out << pocket[i].cost_categiries.spend_countFood;
+					out << pocket[i].cost_categiries.spend_countSubscript;
+					out << pocket[i].cost_categiries.spend_countOther;
+
+					out.close();
+				}
 			}
 
 		}
 
 		out.close();
+
+
 
 	}
 
@@ -210,6 +241,7 @@ public:
 	void Read(vector<Card> &pocket) {
 
 		ifstream in("bank_system.txt",ios::in | ios::binary);
+		ifstream in_top("top_payments.txt",ios::in | ios::binary);
 
 
 
@@ -219,15 +251,23 @@ public:
 			
              Card* tmp = new Card();
 			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
-      
+				
+				in_top >> tmp->cost_categiries.spend_countCom_payments;
+				in_top >> tmp->cost_categiries.spend_countEntertaiment;
+				in_top >> tmp->cost_categiries.spend_countFood;
+				in_top >> tmp->cost_categiries.spend_countSubscript;
+				in_top >> tmp->cost_categiries.spend_countOther;
+
 				pocket.push_back(*tmp);
 				
-
 			}
 
 		}
 
+
 		in.close();
+		in_top.close();
+
 
 	}
 	
@@ -319,8 +359,34 @@ public:
 				
 				cout << "enter the amount to replenish the account\n";
 				
-				if (summ <= pocket[i].get_balance()) {
-                   pocket[i].set_balance(pocket[i].get_balance()-summ);
+				if (pocket[i].get_type() == "credit")
+				{
+					if (summ <= pocket[i].get_balance()) {
+						pocket[i].set_balance(pocket[i].get_balance() - summ);
+					}
+					else if(summ<=pocket[i].get_limit())
+					{
+						pocket[i].set_limit(pocket[i].get_limit() - summ);
+					}
+					else
+					{
+						cout << "Not enough money";
+					}
+
+				}
+
+				if (pocket[i].get_type() == "debit")
+				{
+					if (summ <= pocket[i].get_balance()) {
+						pocket[i].set_balance(pocket[i].get_balance() - summ);
+					}
+				}
+				else
+				{
+					cout << "Not enough money";
+				}
+
+				
 					
 				   pocket[i].set_data_pay();
 				
@@ -329,11 +395,6 @@ public:
 			}
 		}
 
-
-
-
-
-	}
 	void Categori_Menu(vector<Card>& pocket) {
 
 		int categori;
@@ -408,16 +469,7 @@ public:
 			break;
 		}
 	}
-private:
-	Сost_categories cost_categiries;
-	Data data_pay;
-	string type;
-	string number;
-	string CVV;
-	string date;
-	string owner;
-	int credit_limit;
-	int balance;
+
 
 };
 
