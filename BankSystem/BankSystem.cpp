@@ -197,13 +197,15 @@ public:
 	void Save(vector<Card> pocket) {
 
 		ofstream out;
+		ofstream out_top;
 
-		out.open("bank_system.txt", ios::out  | ios::binary);
+		out.open("bank_system.txt", ios::out | ios::binary);
 
 		if (out.is_open()) {
 			out << pocket.size() << " ";
 			for (size_t i = 0; i < pocket.size(); i++)
 			{
+
 				out << pocket[i].balance<<" ";
 				out << pocket[i].type << " ";
 				out << pocket[i].number << " ";
@@ -211,12 +213,10 @@ public:
 				out << pocket[i].date << " ";
 				out << pocket[i].owner << " ";
 				out << pocket[i].credit_limit << " ";
-				out.close();
 
+				out_top.open("top_payments.txt", ios::out | ios::binary);
 
-				out.open("top_payments.txt", ios::out | ios::binary);
-
-				if (out.is_open())
+				if (out_top.is_open())
 				{
 					out << pocket[i].cost_categiries.spend_countCom_payments;
 					out << pocket[i].cost_categiries.spend_countEntertaiment;
@@ -224,12 +224,13 @@ public:
 					out << pocket[i].cost_categiries.spend_countSubscript;
 					out << pocket[i].cost_categiries.spend_countOther;
 
-					out.close();
+
 				}
 			}
 
 		}
 
+		out_top.close();
 		out.close();
 
 
