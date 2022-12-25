@@ -200,6 +200,7 @@ public:
 		ofstream out_top;
 
 		out.open("bank_system.txt", ios::out | ios::binary);
+		out_top.open("top_payments.txt", ios::out | ios::binary);
 
 		if (out.is_open()) {
 			out << pocket.size() << " ";
@@ -214,7 +215,7 @@ public:
 				out << pocket[i].owner << " ";
 				out << pocket[i].credit_limit << " ";
 
-				out_top.open("top_payments.txt", ios::out | ios::binary);
+				
 
 				if (out_top.is_open())
 				{
