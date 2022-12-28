@@ -1,10 +1,11 @@
 
- 
+
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 struct Data {
@@ -14,10 +15,12 @@ struct Data {
 };
 
 struct Сost_categories {
+
 	string name_categories;
 	float spend_count_categories = 0;              //общая сумма покупок в данной категории
 	int count_categories = 0;                     //колличество покупок в данной категории
 	Data data_pay;
+
 	void set_data_pay() {
 
 		int _month;
@@ -43,22 +46,35 @@ struct Сost_categories {
 	int GetDay() { return data_pay.day; }
 	int GetMohnt() { return data_pay.month; }
 	int GetWeek() { return data_pay.week; }
+
+	int GetCount() { return count_categories; }
+
 	string GetName_categorie() { return name_categories; }
 	Сost_categories() {
 		name_categories = "name";
-		this->spend_count_categories = 0;
-		this->count_categories = 0;
+		spend_count_categories = 0;
+		count_categories = 0;
 	}
-	Сost_categories (string name,float spend_count_categories, int count_categories) {
+	Сost_categories(string name, float spend_count_categories, int count_categories) {
 		name_categories = name;
 		this->spend_count_categories = spend_count_categories;
 		this->count_categories = count_categories;
 	}
+	friend bool operator<(const Сost_categories& c1, const Сost_categories& c2);
+
+
 };
+
+
+bool operator<(const Сost_categories& c1, const Сost_categories& c2)
+{
+	return c1.count_categories < c2.count_categories;
+}
+
 
 class Card
 {
-	private:
+private:
 	Сost_categories cost_categiries;
 	string type;
 	string number;
@@ -68,10 +84,10 @@ class Card
 	int credit_limit;
 	int balance;
 
-	vector<Сost_categories> mas_cost_categiries;
+
 
 public:
-	
+	vector<Сost_categories> mas_cost_categiries;
 	Card(int balance,
 		string type,
 		string number,
@@ -177,7 +193,13 @@ public:
 		return credit_limit;
 	}
 
-	
+	vector<Сost_categories> get_mas()const {
+
+		return this->mas_cost_categiries;
+
+	}
+
+
 
 	//вывод объекта Card на экран
 
@@ -195,22 +217,66 @@ public:
 		cout << endl;
 	}
 
+
+	//выводит топ трат (категории)
+	void Show_top(vector<Сost_categories>& mas_cost) {
+
+		vector<Сost_categories> tmp_cost;
+		tmp_cost = mas_cost;
+		sort(tmp_cost.begin(), tmp_cost.end());
+
+		reverse(tmp_cost.begin(), tmp_cost.end());
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			cout << tmp_cost[i].name_categories;
+			cout << "-";
+			cout << tmp_cost[i].count_categories;
+			cout << endl;
+		}
+		cout << endl;
+	}
+
+
+
+	//выводит топ трат
+	void Show_top_spend(vector<Сost_categories>& mas_cost) {
+
+		vector<int> tmp_cost;
+
+		for (size_t i = 0; i < mas_cost.size(); i++)
+		{
+			tmp_cost.push_back(mas_cost[i].spend_count_categories);
+		}
+
+		sort(tmp_cost.begin(), tmp_cost.end());
+
+		reverse(tmp_cost.begin(), tmp_cost.end());
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			cout << tmp_cost[i];
+			cout << endl;
+		}
+		cout << endl;
+	}
+
 	//сохраняет карты в файл
 
 	void Save(vector<Card> pocket) {
 
 		ofstream out;
-		ofstream out_top;
+
 
 		out.open("bank_system.txt", ios::out | ios::binary);
-		out_top.open("top_payments.txt", ios::out | ios::binary);
+
 
 		if (out.is_open()) {
 			out << pocket.size() << " ";
 			for (size_t i = 0; i < pocket.size(); i++)
 			{
 
-				out << pocket[i].balance<<" ";
+				out << pocket[i].balance << " ";
 				out << pocket[i].type << " ";
 				out << pocket[i].number << " ";
 				out << pocket[i].CVV << " ";
@@ -218,69 +284,96 @@ public:
 				out << pocket[i].owner << " ";
 				out << pocket[i].credit_limit << " ";
 
-				
 
-				/*if (out_top.is_open())
-				{
-					out << pocket[i].cost_categiries.spend_countCom_payments;
-					out << pocket[i].cost_categiries.spend_countEntertaiment;
-					out << pocket[i].cost_categiries.spend_countFood;
-					out << pocket[i].cost_categiries.spend_countSubscript;
-					out << pocket[i].cost_categiries.spend_countOther;
-
-
-				}*/
 			}
 
 		}
 
-		out_top.close();
+
 		out.close();
 
 
 
 	}
 
-	//считывает данные карт с файла
-	
-	
-	void Read(vector<Card> &pocket) {
+	void Save_top(vector<Сost_categories> mas_cost) {
 
-		ifstream in("bank_system.txt",ios::in | ios::binary);
-		ifstream in_top("top_payments.txt",ios::in | ios::binary);
+		ofstream out_top;
+
+		out_top.open("top_payments.txt", ios::out | ios::binary);
+
+		if (out_top.is_open()) {
+			/*out_top << mas_cost_categiries.size() << " ";*/
+			for (size_t i = 0; i < mas_cost.size(); i++)
+			{
+
+				out_top << mas_cost[i].name_categories << " ";
+				out_top << mas_cost[i].spend_count_categories << " ";
+				out_top << mas_cost[i].count_categories << " ";
 
 
-
-		if (in.is_open()) {
-			int tmp_size;
-			in >> tmp_size;
-			
-             Card* tmp = new Card();
-			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
-				/*
-				in_top >> tmp->cost_categiries.spend_countCom_payments;
-				in_top >> tmp->cost_categiries.spend_countEntertaiment;
-				in_top >> tmp->cost_categiries.spend_countFood;
-				in_top >> tmp->cost_categiries.spend_countSubscript;
-				in_top >> tmp->cost_categiries.spend_countOther;*/
-
-				pocket.push_back(*tmp);
-				
 			}
 
 		}
 
+		out_top.close();
+
+
+
+	}
+
+	//считывает данные карт с файла
+
+
+	void Read(vector<Card>& pocket) {
+
+		ifstream in("bank_system.txt", ios::in | ios::binary);
+
+
+		if (in.is_open()) {
+
+			int tmp_size;
+			in >> tmp_size;
+
+			Card* tmp = new Card();
+			while (in >> tmp->balance >> tmp->type >> tmp->number >> tmp->CVV >> tmp->date >> tmp->owner >> tmp->credit_limit) {
+
+				pocket.push_back(*tmp);
+
+			}
+
+		}
 
 		in.close();
+
+
+	}
+
+	void Read_top(vector<Сost_categories> mas_cost_categiries, vector<Сost_categories>& mas_cost) {
+
+		ifstream in_top("top_payments.txt", ios::in | ios::binary);
+
+
+		if (in_top.is_open()) {
+
+			/*int tmp_size;
+			in_top >> tmp_size;*/
+			Сost_categories* tmp_struct = new Сost_categories();
+			while (in_top >> tmp_struct->name_categories >> tmp_struct->spend_count_categories >> tmp_struct->count_categories) {
+
+
+				mas_cost_categiries.push_back(*tmp_struct);
+
+			}
+			mas_cost = mas_cost_categiries;
+		}
+
 		in_top.close();
 
 
 	}
-	
 
-	void debit_spend() {
 
-	}
 
 	//пополняет карту
 
@@ -350,8 +443,8 @@ public:
 
 		return *card;
 	}
-	
-	void Card_selection(vector<Card>& pocket,int summ) {
+
+	void Card_selection(vector<Card>& pocket, int summ) {
 		string _numbCard;
 		for (size_t i = 0; i < pocket.size(); i++)
 		{
@@ -363,15 +456,15 @@ public:
 		for (size_t i = 0; i < pocket.size(); i++)
 		{
 			if (_numbCard == pocket[i].get_number()) {
-				
-				
-				
+
+
+
 				if (pocket[i].get_type() == "credit")
 				{
 					if (summ <= pocket[i].get_balance()) {
 						pocket[i].set_balance(pocket[i].get_balance() - summ);
 					}
-					else if(summ<=pocket[i].get_limit())
+					else if (summ <= pocket[i].get_limit())
 					{
 						pocket[i].set_limit(pocket[i].get_limit() - summ);
 					}
@@ -382,7 +475,7 @@ public:
 
 				}
 
-				if (pocket[i].get_type() == "debit")
+				if (pocket[i].get_type() == "debet")
 				{
 					if (summ <= pocket[i].get_balance()) {
 						pocket[i].set_balance(pocket[i].get_balance() - summ);
@@ -393,19 +486,19 @@ public:
 					cout << "Not enough money";
 				}
 
-				}
-				
 			}
+
 		}
-	
-	void cost_report(vector<Card>& pocket) {
+	}
+
+	void cost_report(vector<Card>& pocket, vector<Сost_categories>& mas_cost) {
 	Begin:
 		cout << "\tReport categories: " << endl;
 		cout << "   daily report   - eneter '1' " << endl;
 		cout << "   weekly report  - eneter '2' " << endl;
 		cout << "   monthly report - eneter '3' " << endl;
 		int numb;
-		int count=0;
+		int count = 0;
 		cin >> numb;
 		if (numb > 0 && numb < 4) {
 			if (numb == 1) {
@@ -414,43 +507,43 @@ public:
 
 				cin >> _day;
 
-				for (int i = 0; i < mas_cost_categiries.size(); i++)
+				for (int i = 0; i < mas_cost.size(); i++)
 				{
-					if (_day == mas_cost_categiries[i].GetDay()) {
+					if (_day == mas_cost[i].GetDay()) {
 						count++;
-						cout<<"On this day there were expenses by category: " << mas_cost_categiries[i].GetName_categorie()<<endl;
+						cout << "On this day there were expenses by category: " << mas_cost[i].GetName_categorie() << endl;
 					}
-					
+
 				}
-				 if (count==0) {
-                       cout << "there were no charges that day! " << endl;
-					}
-					
+				if (count == 0) {
+					cout << "there were no charges that day! " << endl;
+				}
+
 			}
-			 if (numb == 2) {
+			if (numb == 2) {
 				cout << "enter the week for the report " << endl;
 				int _week;
 				cin >> _week;
-				for (int i = 0; i < mas_cost_categiries.size(); i++)
+				for (int i = 0; i < mas_cost.size(); i++)
 				{
-					if (_week == mas_cost_categiries[i].GetWeek()) {
+					if (_week == mas_cost[i].GetWeek()) {
 						count++;
-						cout << "This week's expenses by category: " << mas_cost_categiries[i].GetName_categorie() << endl;
+						cout << "This week's expenses by category: " << mas_cost[i].GetName_categorie() << endl;
 					}
 				}
 				if (count == 0) {
 					cout << "no expenses this week! " << endl;
 				}
 			}
-			 if (numb == 3) {
+			if (numb == 3) {
 				cout << "enter the week for the report " << endl;
 				int _mohnt;
 				cin >> _mohnt;
-				for (int i = 0; i < mas_cost_categiries.size(); i++)
+				for (int i = 0; i < mas_cost.size(); i++)
 				{
-					if (_mohnt == mas_cost_categiries[i].GetMohnt()) {
+					if (_mohnt == mas_cost[i].GetMohnt()) {
 						count++;
-						cout<<"This month's expenses by category: " << mas_cost_categiries[i].GetName_categorie();
+						cout << "This month's expenses by category: " << mas_cost[i].GetName_categorie();
 					}
 				}
 				if (count == 0) {
@@ -462,27 +555,19 @@ public:
 			cout << "Wrong categori";
 			goto Begin;
 		}
-		
+
 	}
-	void Categori_Menu(vector<Card>& pocket) {
-		Сost_categories categories ("Food", 0, 0);
-		Сost_categories categories1 ("Entertaiment", 0, 0);
-		Сost_categories categories2 ("Communal_payments", 0, 0);
-		Сost_categories categories3 ("Subscriptions", 0, 0);
-		Сost_categories categories4 ("Other", 0, 0);
-		mas_cost_categiries.push_back(categories);
-		mas_cost_categiries.push_back(categories1);
-		mas_cost_categiries.push_back(categories2);
-		mas_cost_categiries.push_back(categories3);
-		mas_cost_categiries.push_back(categories4);
+	void Categori_Menu(vector<Card>& pocket, vector<Сost_categories>& mas_cost) {
+
 		int categori;
-		int sum=0;
+		int sum = 0;
+
 		cout << "what categori u wanna use?" << endl;
-		cout << "1 - Food"  << endl;
-		cout << "2 - Entertaiment "  << endl;
-		cout << "3 - Communal_payments "  << endl;
-		cout << "4 - Subscriptions "  << endl;
-		cout << "5 - Other"  << endl;
+		cout << "1 - Food" << endl;
+		cout << "2 - Entertaiment " << endl;
+		cout << "3 - Communal_payments " << endl;
+		cout << "4 - Subscriptions " << endl;
+		cout << "5 - Other" << endl;
 
 
 	Start:
@@ -493,60 +578,60 @@ public:
 
 		case 1:
 			cout << "enter the purchase amount in this category: " << endl;
-			
+
 			cin >> sum;
 			Card_selection(pocket, sum);
-			mas_cost_categiries[0].spend_count_categories += sum;
-			mas_cost_categiries[0].count_categories++;
-			mas_cost_categiries[0].set_data_pay();
-			
-			
-			
+			mas_cost[0].spend_count_categories += sum;
+			mas_cost[0].count_categories++;
+			mas_cost[0].set_data_pay();
+
+
+
 
 			break;
 
 		case 2:
 			cout << "enter the purchase amount in this category: " << endl;
-			
+
 			cin >> sum;
 			Card_selection(pocket, sum);
-			mas_cost_categiries[1].spend_count_categories += sum;
-			mas_cost_categiries[1].count_categories++;
-			mas_cost_categiries[1].set_data_pay();
-			
+			mas_cost[1].spend_count_categories += sum;
+			mas_cost[1].count_categories++;
+			mas_cost[1].set_data_pay();
+
 			break;
 
 		case 3:
 			cout << "enter the purchase amount in this category: " << endl;
-			
+
 			cin >> sum;
 			Card_selection(pocket, sum);
-			mas_cost_categiries[2].spend_count_categories += sum;
-			mas_cost_categiries[2].count_categories++;
-			mas_cost_categiries[2].set_data_pay();
-			
+			mas_cost[2].spend_count_categories += sum;
+			mas_cost[2].count_categories++;
+			mas_cost[2].set_data_pay();
+
 			break;
 
 		case 4:
 			cout << "enter the purchase amount in this category: " << endl;
-			
+
 			cin >> sum;
 			Card_selection(pocket, sum);
-			mas_cost_categiries[3].spend_count_categories += sum;
-			mas_cost_categiries[3].count_categories++;
-			mas_cost_categiries[3].set_data_pay();
-			
+			mas_cost[3].spend_count_categories += sum;
+			mas_cost[3].count_categories++;
+			mas_cost[3].set_data_pay();
+
 			break;
 
 		case 5:
 			cout << "enter the purchase amount in this category: " << endl;
-			
+
 			cin >> sum;
 			Card_selection(pocket, sum);
-			mas_cost_categiries[4].spend_count_categories += sum;
-			mas_cost_categiries[4].count_categories++;
-			mas_cost_categiries[4].set_data_pay();
-			
+			mas_cost[4].spend_count_categories += sum;
+			mas_cost[4].count_categories++;
+			mas_cost[4].set_data_pay();
+
 			break;
 
 		default:
@@ -571,11 +656,21 @@ public:
 int main()
 {
 	vector<Card> pocket;
-	
-	
-	
+
+	vector<Сost_categories> mas_cost;
+	Сost_categories categories("Food", 0, 0);
+	Сost_categories categories1("Entertaiment", 0, 0);
+	Сost_categories categories2("Communal_payments", 0, 0);
+	Сost_categories categories3("Subscriptions", 0, 0);
+	Сost_categories categories4("Other", 0, 0);
+	mas_cost.push_back(categories);
+	mas_cost.push_back(categories1);
+	mas_cost.push_back(categories2);
+	mas_cost.push_back(categories3);
+	mas_cost.push_back(categories4);
 	//временный объект Card для вызова методов
 	Card tmp_card;
+
 
 	string number_card;
 	int choose;
@@ -584,6 +679,8 @@ int main()
 
 	//чтение из файла
 	tmp_card.Read(pocket);
+	tmp_card.Read_top(tmp_card.get_mas(), mas_cost);
+	
 
 Start_Menu:
 
@@ -598,7 +695,9 @@ Start_Menu:
 		cout << "5 card replenishment\n";
 		cout << "6 costs by category\n";
 		cout << "7 cost and category report\n";
-		cout << "8 save & exit\n";
+		cout << "8 Show top by catigories\n";
+		cout << "9 Show top by summ\n";
+		cout << "10 save & exit\n";
 
 
 
@@ -654,36 +753,52 @@ Start_Menu:
 			{
 				pocket[i].Show();
 			}
-			
+
 			cout << "Enter nunber card: \n";
 			cin >> number_card;
 			for (size_t i = 0; i < pocket.size(); i++)
 			{
 				if (number_card == pocket[i].get_number()) {
-					int sum=0;
+					int sum = 0;
 					cout << "enter the amount to replenish the account\n";
 					cin >> sum;
 					pocket[i].set_balance(sum);
 				}
 			}
-			
+
 			break;
 
 			//сохранение в файл выход из меню
 		case 6:
-			tmp_card.Categori_Menu(pocket);
-			
-						
+			tmp_card.Categori_Menu(pocket, mas_cost);
+
+
 			break;
 			//отчет по затратам и категориям
 		case 7:
-			tmp_card.cost_report(pocket);
-			
+			tmp_card.cost_report(pocket, mas_cost);
+
 
 			break;
-			//сохранение в файл выход из меню
+
 		case 8:
+			tmp_card.Show_top(mas_cost);
+
+
+			break;
+
+
+		case 9:
+			tmp_card.Show_top_spend(mas_cost);
+
+
+			break;
+
+
+			//сохранение в файл выход из меню
+		case 10:
 			tmp_card.Save(pocket);
+			tmp_card.Save_top(mas_cost);
 			No_exit = false;
 
 			break;
