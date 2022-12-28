@@ -1,0 +1,1 @@
+Food 30000 1 Entertaiment 0 0 Communal_payments 0 0 Subscriptions 0 0 Other 1000 1 
